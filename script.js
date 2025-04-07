@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const filterBtns = document.querySelectorAll('.filter-btn');
     
     let wishes = JSON.parse(localStorage.getItem('wishes')) || [];
+    document.getElementById('copyright-year').textContent = new Date().getFullYear();
     
     // Render wishes
     function renderWishes(filter = 'all') {
@@ -243,3 +244,4 @@ document.addEventListener('DOMContentLoaded', function() {
         musicPlayer.classList.add('visible');
     }
 });
+
