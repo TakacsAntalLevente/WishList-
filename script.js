@@ -143,3 +143,38 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial render
     renderWishes();
 });
+
+
+// Music Player Functionality
+const musicToggle = document.getElementById('music-toggle');
+const bgMusic = document.getElementById('bg-music');
+const volumeSlider = document.getElementById('volume-slider');
+const musicStatus = document.querySelector('.music-status');
+
+// Try to play music (will be muted until user interaction)
+bgMusic.volume = 0.1;
+bgMusic.muted = false;
+
+// Enable music after first user interaction
+document.body.addEventListener('click', function initMusic() {
+    bgMusic.muted = false;
+    document.body.removeEventListener('click', initMusic);
+}, { once: true });
+
+// Toggle music play/pause
+musicToggle.addEventListener('click', function() {
+    if (bgMusic.paused) {
+        bgMusic.play();
+        musicStatus.textContent = 'Music: On';
+        this.innerHTML = '<i class="fas fa-music"></i><span class="music-status">Music: On</span>';
+    } else {
+        bgMusic.pause();
+        musicStatus.textContent = 'Music: Off';
+        this.innerHTML = '<i class="fas fa-music"></i><span class="music-status">Music: Off</span>';
+    }
+});
+
+// Volume control
+volumeSlider.addEventListener('input', function() {
+    bgMusic.volume = this.value;
+});
