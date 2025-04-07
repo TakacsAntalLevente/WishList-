@@ -34,23 +34,33 @@
     </div>
 
     <!-- Music Player -->
+<!-- Replace your existing music player with this -->
 <div class="music-player">
-    <audio id="bg-music" loop>
-        <source src="bg_music.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
     <button id="music-toggle" class="music-btn">
         <i class="fas fa-music"></i>
-        <span class="music-status">Music: Off</span>
+        <span class="music-status">Music: Loading...</span>
     </button>
     <div class="volume-control">
         <i class="fas fa-volume-down"></i>
-        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.1">
+        <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.5">
         <i class="fas fa-volume-up"></i>
     </div>
 </div>
 
+<script src="script.js"></script>
 
-    <script src="script.js"></script>
+<!-- Add this modal at the bottom of your body -->
+<div id="music-modal" class="music-modal">
+    <div class="modal-content">
+        <h3>Welcome to My Wishlist!</h3>
+        <p>Click the button below to enable background music:</p>
+        <button id="enable-music" class="music-btn">
+            <i class="fas fa-music"></i> Enable Music
+        </button>
+    </div>
+</div>
+
+
+    
 </body>
 </html>

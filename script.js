@@ -146,35 +146,100 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // Music Player Functionality
-const musicToggle = document.getElementById('music-toggle');
-const bgMusic = document.getElementById('bg-music');
-const volumeSlider = document.getElementById('volume-slider');
-const musicStatus = document.querySelector('.music-status');
-
-// Try to play music (will be muted until user interaction)
-bgMusic.volume = 0.1;
-bgMusic.muted = false;
-
-// Enable music after first user interaction
-document.body.addEventListener('click', function initMusic() {
-    bgMusic.muted = false;
-    document.body.removeEventListener('click', initMusic);
-}, { once: true });
-
-// Toggle music play/pause
-musicToggle.addEventListener('click', function() {
-    if (bgMusic.paused) {
-        bgMusic.play();
-        musicStatus.textContent = 'Music: On';
-        this.innerHTML = '<i class="fas fa-music"></i><span class="music-status">Music: On</span>';
-    } else {
-        bgMusic.pause();
-        musicStatus.textContent = 'Music: Off';
-        this.innerHTML = '<i class="fas fa-music"></i><span class="music-status">Music: Off</span>';
+// Music Player Functionality
+// Web Audio API Implementation
+document.addEventListener('DOMContentLoaded', function() {
+    // Audio elements
+    let audioContext;
+    let audioBuffer;
+    let sourceNode;
+    let gainNode;
+    let isMusicPlaying = false;
+    
+    // DOM elements
+    const musicToggle = document.getElementById('music-toggle');
+    const volumeSlider = document.getElementById('volume-slider');
+    const musicStatus = document.querySelector('.music-status');
+    const musicModal = document.getElementById('music-modal');
+    const enableMusicBtn = document.getElementById('enable-music');
+    const musicPlayer = document.querySelector('.music-player');
+    
+    // Initialize audio context on user interaction
+    function initAudioContext() {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        gainNode = audioContext.createGain();
+        gainNode.gain.value = volumeSlider.value;
+        gainNode.connect(audioContext.destination);
+        
+        loadAudio();
     }
-});
-
-// Volume control
-volumeSlider.addEventListener('input', function() {
-    bgMusic.volume = this.value;
+    
+    // Load audio file
+    function loadAudio() {
+        fetch('bg_music.mp3')
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+            .then(buffer => {
+                audioBuffer = buffer;
+                musicStatus.textContent = 'Music: Ready';
+                enableMusicBtn.disabled = false;
+                enableMusicBtn.innerHTML = '<i class="fas fa-music"></i> Enable Music';
+            })
+            .catch(error => {
+                console.error('Error loading audio:', error);
+                musicStatus.textContent = 'Music: Error';
+            });
+    }
+    
+    // Play/pause music
+    function toggleMusic() {
+        if (!isMusicPlaying) {
+            if (!audioBuffer) return;
+            
+            sourceNode = audioContext.createBufferSource();
+            sourceNode.buffer = audioBuffer;
+            sourceNode.loop = true;
+            sourceNode.connect(gainNode);
+            sourceNode.start(0);
+            isMusicPlaying = true;
+            musicStatus.textContent = 'Music: On';
+            musicToggle.innerHTML = '<i class="fas fa-music"></i><span class="music-status">Music: On</span>';
+        } else {
+            if (sourceNode) {
+                sourceNode.stop();
+                sourceNode.disconnect();
+                sourceNode = null;
+            }
+            isMusicPlaying = false;
+            musicStatus.textContent = 'Music: Off';
+            musicToggle.innerHTML = '<i class="fas fa-music"></i><span class="music-status">Music: Off</span>';
+        }
+    }
+    
+    // Volume control
+    volumeSlider.addEventListener('input', function() {
+        if (gainNode) {
+            gainNode.gain.value = this.value;
+        }
+    });
+    
+    // Music toggle button
+    musicToggle.addEventListener('click', toggleMusic);
+    
+    // Enable music button in modal
+    enableMusicBtn.addEventListener('click', function() {
+        initAudioContext();
+        musicModal.style.display = 'none';
+        musicPlayer.classList.add('visible');
+    });
+    
+    // Show modal after short delay
+    setTimeout(() => {
+        musicModal.style.display = 'flex';
+    }, 1000);
+    
+    // Show music player when audio is ready
+    if (audioBuffer) {
+        musicPlayer.classList.add('visible');
+    }
 });
